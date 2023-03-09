@@ -1,0 +1,27 @@
+{
+  "name": "vhp-api",
+  "version": "0.1.1",
+  "description": "api for vhp system",
+  "main": "vapi.js",
+  "scripts": {
+    "test": "node test.js",
+    "documents":"start chrome -url http://localhost:4000 && node ./tools/readme.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VHP1946/vhp-api.git"
+  },
+  "author": "cmv",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VHP1946/vhp-api/issues"
+  },
+  "homepage": "https://github.com/VHP1946/vhp-api#readme",
+  "devDependencies": {
+    "electron": "^18.2.0",
+    "showdown": "^2.1.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.9"
+  }
+}
