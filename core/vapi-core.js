@@ -3,19 +3,15 @@
 const fetch=require('node-fetch');
 const https=require('https');
 
-const httpsAgent = new https.Agent({rejectUnauthorized: false});//only used in development
-
-
 let VAPIclient={
     try:false,
     connected:false,
     auth:{user:'VOGCH',pswrd:'vogel123',coid:''}
 }
 function SETclientauth(auth={},connected=false){
-    VAPIclient.auth={...auth};
+    if(VAPIclient)
+    VAPIclient.auth=JSON.parse(JSON.stringify(auth));
     VAPIclient.connected=connected;
-
-    console.log('VAPIclient > ',VAPIclient);
 }
 function GETclientauth(){
     return {
@@ -34,7 +30,7 @@ class Core {
      * @param {Object} dev object {comments:TRUE | FALSE} can add flags for better control when developing 
      */
     constructor({auth={},sync=true,host=false,dev=false}){
-        this.connected = VAPIclient;
+        this.connected = sync?VAPIclient.connected:false;
         this.host = host||'https://www.vhpportal.com/';//take out defualt, and require pass
         this.dev=dev;
         this.sync=sync;
@@ -45,8 +41,9 @@ class Core {
         this.Ping = this.Ping.bind(this);
     }
     
-    /* PING vhpportal
-        A way to check if there is a connection to the portal. will retrun false
+    /** PING vhpportal
+     *  A way to check if there is a connection to the portal. will retrun false.
+     * 
     */
     async Ping(full=false){
         let answr = await this.SENDrequest({});
@@ -66,6 +63,7 @@ class Core {
                 this.auth.user = user.user||''
                 this.auth.pswrd = user.pswrd || '';
             }
+            console.log(this.auth)
             this.SENDrequest({route:'LOGIN'}).then(
                 answr=>{
                     if(!answr.success){
@@ -77,8 +75,7 @@ class Core {
                     }else{
                         console.log("User logged in")
                     }
-                    sync&&SETclientauth(this.auth,this.connected);
-
+                    this.sync&&SETclientauth(this.auth,this.connected);
                     return resolve(answr.success || false);
                 }
             )
@@ -103,7 +100,7 @@ class Core {
         url=this.host+'api/'
     }){
         return new Promise((resolve,reject)=>{
-            this.sync&&this.SYNCauth();
+            this.sync&&route!=='LOGIN'&&console.log('SYncing')&&this.SYNCauth()&&console.log('Syncing');
             let options={
                 method:'POST',
                 headers:{
@@ -119,7 +116,7 @@ class Core {
                 pack:pack,
                 })
             }
-            if(this.dev){options.agent=httpsAgent}
+            if(this.dev){options.agent=new https.Agent({rejectUnauthorized: false})};//only used in development}
             this.dev.comments&&console.log('SENDING REQUEST->',request);
 
             fetch(url+route,options)

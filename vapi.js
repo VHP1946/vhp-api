@@ -1,4 +1,5 @@
+
 module.exports={
-    Core:require('./core/vapi-core.js').Core,
-    Store:require('./store/vapi-store.js')
+    Core:require('./core/vapi-core').Core,
+    Store:require('./store/vapi-store')
 }
