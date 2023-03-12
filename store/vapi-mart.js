@@ -1,23 +1,24 @@
 const {Core}=require('../core/vapi-core.js');
+
 class VAPImart extends Core{
-    constructor(){
-        super();
+    constructor(core){
+        super({...core});
     }
 
-    REQUESTmart({
+    Request({
         pack={},
         request='mart'
     }){
         return new Promise((resolve,reject)=>{
-            //console.log(pack);
             this.SENDrequest({
                 pack:pack,
                 route:'STORE',
                 request:request||''
             }).then(
                 answr=>{
+                    console.log(answr);
                     if(answr.body.success){
-                        return resolve(answr.body.result);
+                        return resolve(answr.body.result);//returns the table if QUERY | INSERT
                     }
                     else {return resolve(false);}
                 }

@@ -1,4 +1,5 @@
-module.export={
-    Mart:require('./vapi-jmart.js').VAPImart,
-    JMart:require('./vapi-mart.js').VAPIjmart
+
+module.exports={
+    Mart:require('./vapi-mart').VAPImart,
+    JMart:require('./vapi-mart').VAPIjmart
 }
