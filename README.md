@@ -53,39 +53,83 @@ pack:{
   collect: 'collection name'
   store: 'store name'
   db: 'database name'
-  methd: 'QUERY | REMOVE | INSERT | UPDATE'
+  methd: '[query](#query) | [remove](#remove) | [insert](#insert) | [update](#update)'
   options: {content depend on method. list below}
 }
 ``
 
 All of the following models can be expanded on using the [nedb documentation](https://github.com/louischatriot/nedb)
 
-QUERY=>
+### query
+
+``
+options:{
+    query:{}
+}
+``
+returns
+``
+body:{
+  result:[] || null
+}
+``
+If the result is null, that means the call failed at some point prior. When successful the result carries an array reflecting the query. Even if the query returns a unique document, it will be in the array as the only document.
+
+
+### remove
+``
+options:{
+    query:{id:'itemid'}
+    multi: TRUE || FALSE
+}
+``
+returns
 ``
 {
-    query:{id:'itemid'}
+  body:{
+    result:{
+      err:null || err,
+      num: (int)
+    }
+  }
 }
 ``
-REMOVE=>
-``{
-    query:{id:'itemid'}
-    multi: TRUE | FALSE
-}
+
+
+### update
 ``
-UPDATE=>
-``{
+options:{
     query:{id:'itemid'}
     update:{$set:item}
     options:{}
-}``
-INSERT=>{
-docs: [items] || {item}
 }
-<------------------------------------------------------------------------------>
+``
+returns
+``
+body:{
+  result:{
+    err:null || err,
+    num:int
+  }
+}
+``
 
 
-
-
+### insert
+``
+options:{
+  docs: [items] || {item}
+}
+``
+returns
+``
+body:{
+  result:{
+    err: null,
+    docs:
+  }
+}
+``
 
 CALLING -> request:'ADMIN' ---------------------------------------------------->
 

@@ -9,11 +9,22 @@ let VAPIclient={
     auth:{user:'VOGCH',pswrd:'vogel123',coid:''}
 }
 function SETclientauth(auth={},connected=false){
-    if(VAPIclient)
+    try{localStorage.setItem(JSON.stringify(auth));}
+    catch{}
     VAPIclient.auth=JSON.parse(JSON.stringify(auth));
     VAPIclient.connected=connected;
 }
+
 function GETclientauth(){
+    if(!VAPIclient.try){
+        try{
+            let vcauth = JSON.parse(localStorage.getItem('vapi-user'));
+            if(vcauth.user!=undefined && vcauth.pswrd!=undefined){
+                VAPIclient.auth=vcauth;
+            }
+        }catch{}
+    }
+    VAPIclient.try=true;
     return {
         auth:VAPIclient.auth,
         connected:VAPIclient.connected
@@ -30,11 +41,12 @@ class Core {
      * @param {Object} dev object {comments:TRUE | FALSE} can add flags for better control when developing 
      */
     constructor({auth={},sync=true,host=false,dev=false}){
-        this.connected = sync?VAPIclient.connected:false;
+        let vapiclient = sync?GETclientauth():false;
+        this.connected = sync?vapiclient.connected:false;
         this.host = host||'https://www.vhpportal.com/';//take out defualt, and require pass
         this.dev=dev;
         this.sync=sync;
-        this.auth = sync?VAPIclient.auth:{
+        this.auth = sync?vapiclient.auth:{
             user:auth.user || '',
             pswrd:auth.pswrd || '',
         }
@@ -66,6 +78,7 @@ class Core {
             console.log(this.auth)
             this.SENDrequest({route:'LOGIN'}).then(
                 answr=>{
+                    this.dev.comments&&console.log('Login Response >',answr);
                     if(!answr.success){
                         this.connected=false;
                         this.auth.user='';
@@ -116,8 +129,8 @@ class Core {
                 pack:pack,
                 })
             }
-            if(this.dev){options.agent=new https.Agent({rejectUnauthorized: false})};//only used in development}
-            this.dev.comments&&console.log('SENDING REQUEST->',request);
+            if(this.dev.httpsagent){options.agent=new https.Agent({rejectUnauthorized: false})};//only used in development}
+            this.dev.comments&&console.log('SENDING REQUEST->',route);
 
             fetch(url+route,options)
             .then(response=>{return response.json()})
