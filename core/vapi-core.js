@@ -1,12 +1,11 @@
 /*
 */
-const fetch=require('node-fetch');
 const https=require('https');
 
 let VAPIclient={
     try:false,
     connected:false,
-    auth:{user:'VOGCH',pswrd:'vogel123',coid:''}
+    auth:{user:'VOGCH',pswrd:'vogel123',coid:'01'}
 }
 function SETclientauth(auth={},connected=false){
     try{localStorage.setItem(JSON.stringify(auth));}
@@ -30,6 +29,7 @@ function GETclientauth(){
         connected:VAPIclient.connected
     }
 }
+
 /* VAPI Core
     Base class for making connections through the VAPI. 
 */
@@ -40,10 +40,11 @@ class Core {
      * @param {String | Boolean} host can change the host has need, FALSE->default 'https://www.vhpportal.com/
      * @param {Object} dev object {comments:TRUE | FALSE} can add flags for better control when developing 
      */
-    constructor({auth={},sync=true,host=false,dev=false}){
+    constructor({auth={},sync=true,host=false,dev=false,client=true}){
         let vapiclient = sync?GETclientauth():false;
         this.connected = sync?vapiclient.connected:false;
         this.host = host||'https://www.vhpportal.com/';//take out defualt, and require pass
+        this.client=client;
         this.dev=dev;
         this.sync=sync;
         this.auth = sync?vapiclient.auth:{
@@ -51,6 +52,7 @@ class Core {
             pswrd:auth.pswrd || '',
         }
         this.Ping = this.Ping.bind(this);
+        //!this.client&&(process.env.NODE_TLS_REJECT_UNAUTHORIZED=0);
     }
     
     /** PING vhpportal
@@ -59,6 +61,7 @@ class Core {
     */
     async Ping(full=false){
         let answr = await this.SENDrequest({});
+        this.dev.comments&&console.log(answr);
         return answr.success?
         (full?{
             call:answr,
@@ -75,7 +78,6 @@ class Core {
                 this.auth.user = user.user||''
                 this.auth.pswrd = user.pswrd || '';
             }
-            console.log(this.auth)
             this.SENDrequest({route:'LOGIN'}).then(
                 answr=>{
                     this.dev.comments&&console.log('Login Response >',answr);
@@ -113,6 +115,36 @@ class Core {
         url=this.host+'api/'
     }){
         return new Promise((resolve,reject)=>{
+            if(this.client){return resolve(this.REQUESTclient({
+                body:body,
+                pack:pack,
+                route:route,
+                request:request,
+                url:url
+            }));}
+            else{
+
+                setTimeout(()=>{
+                    return resolve(this.REQUESTserver({
+                        body:body,
+                        pack:pack,
+                        route:route,
+                        request:request,
+                        url:url
+                    }))
+                },Math.floor(Math.random() * 1000));
+            }
+        });
+    }
+
+    REQUESTclient({
+        body=false,
+        pack={},
+        route='PING',
+        request='',
+        url=this.host+'api/'
+    }){
+        return new Promise((resolve,reject)=>{
             this.sync&&route!=='LOGIN'&&console.log('SYncing')&&this.SYNCauth()&&console.log('Syncing');
             let options={
                 method:'POST',
@@ -129,9 +161,7 @@ class Core {
                 pack:pack,
                 })
             }
-            if(this.dev.httpsagent){options.agent=new https.Agent({rejectUnauthorized: false})};//only used in development}
             this.dev.comments&&console.log('SENDING REQUEST->',route);
-
             fetch(url+route,options)
             .then(response=>{return response.json()})
             .then(data=>{
@@ -140,6 +170,61 @@ class Core {
             })
             .catch(err=>{return resolve({msg:'Request Failes',success:false,err:err});});
         });
+    }
+
+    REQUESTserver({
+        body=false,
+        pack={},
+        route='PING',
+        request=''
+    }){
+        return new Promise((resolve,reject)=>{
+            let bod = body?JSON.stringify(body):JSON.stringify({
+                access:{
+                    user:this.auth.user||'',
+                    pswrd:this.auth.pswrd||'',
+                    coid:'01',//this.auth.coid||'',
+                    request:request
+                },
+                pack:pack,
+            });
+            var options = {
+                hostname: 'www.vhpportal.com',//this.host,
+                port: 443,
+                path: `/api/${route}/`,
+                method: 'POST',
+                agent:new https.Agent({rejectUnauthorized:false}),
+                headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(bod)
+                }
+            };
+            //change to http for local testing
+            var req = https.request(options, function (res) {
+                res.setEncoding('utf8');
+            
+                var data = '';
+            
+                res.on('data', function (chunk) {
+                data = data + chunk;
+                });
+            
+                res.on('end',function(){
+                    try{
+                        data = JSON.parse(data);
+                        return resolve(data);
+                    }catch{return resolve({success:false,err:'bad parse'})}
+                });
+                req.on('error', function (e) {
+                    console.log("Error : " + e.message);
+                    return resolve({success:false,err:e});
+                });
+            });
+        
+            // write data to request body
+            req.write(bod);
+            req.end();
+        })
     }
 
     //PREPpack({pack,type})
