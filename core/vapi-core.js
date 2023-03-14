@@ -5,7 +5,7 @@ const https=require('https');
 let VAPIclient={
     try:false,
     connected:false,
-    auth:{user:'VOGCH',pswrd:'vogel123',coid:'01'}
+    auth:{user:'',pswrd:'',coid:'01'}
 }
 function SETclientauth(auth={},connected=false){
     try{localStorage.setItem(JSON.stringify(auth));}
@@ -123,7 +123,6 @@ class Core {
                 url:url
             }));}
             else{
-
                 setTimeout(()=>{
                     return resolve(this.REQUESTserver({
                         body:body,

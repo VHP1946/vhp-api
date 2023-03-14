@@ -1,6 +1,6 @@
 {
   "name": "vhp-api",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "api for vhp system",
   "main": "vapi.js",
   "scripts": {

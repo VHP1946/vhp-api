@@ -109,7 +109,7 @@ returns
 body:{
   result:{
     err:null || err,
-    num:int
+    numrep:int
   }
 }
 ``
@@ -126,7 +126,7 @@ returns
 body:{
   result:{
     err: null,
-    docs:
+    docs: []
   }
 }
 ``
