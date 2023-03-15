@@ -1,12 +1,27 @@
-const {Core,Store}=require('vhp-api');
+import {
+    Core,
+    Store,
+    Structures
+} from 'vhp-api';
 
-let core = new Core({
+let core = new Store.Mart({
+    client:false,
     dev:{
-        comments:true,
-        httpsagent:true
+        comments:true
     }
 });
-
-core.Login({user:'VOGCH',pswrd:'vogel123'}).then(auth=>{
-    console.log(auth);
-})
+core.Login({user:'VOGCH',pswrd:'vogel123'}).then(
+    answr=>{
+        console.log(answr);
+        answr&&
+        core.Request({
+            pack:{
+                collect:'apps',
+                store:'RRQ',
+                db:'mquotes',
+                method:'map',
+                options:{}
+            }
+        }).then(answr=>console.log('Map >',answr))
+    }
+)

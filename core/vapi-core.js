@@ -1,6 +1,6 @@
 /*
 */
-const https=require('https');
+import * as https from 'https';
 
 let VAPIclient={
     try:false,
@@ -21,7 +21,7 @@ function GETclientauth(){
             if(vcauth.user!=undefined && vcauth.pswrd!=undefined){
                 VAPIclient.auth=vcauth;
             }
-        }catch{}
+        }catch{console.log('FAIL localstore')}
     }
     VAPIclient.try=true;
     return {
@@ -33,7 +33,7 @@ function GETclientauth(){
 /* VAPI Core
     Base class for making connections through the VAPI. 
 */
-class Core {
+export class Core {
     /**
      * @param {Object} auth can be passed to set auth
      * @param {Boolean} sync will connect with auth activity from other Cores
@@ -52,7 +52,7 @@ class Core {
             pswrd:auth.pswrd || '',
         }
         this.Ping = this.Ping.bind(this);
-        //!this.client&&(process.env.NODE_TLS_REJECT_UNAUTHORIZED=0);
+        this.dev.https&&(process.env.NODE_TLS_REJECT_UNAUTHORIZED=0);
     }
     
     /** PING vhpportal
@@ -162,7 +162,7 @@ class Core {
             }
             this.dev.comments&&console.log('SENDING REQUEST->',route);
             fetch(url+route,options)
-            .then(response=>{return response.json()})
+            .then(response=>{console.log(response);return response.json()})
             .then(data=>{
                 this.dev.comments&&console.log('Response Data>',data);
                 return resolve(data);
@@ -247,5 +247,3 @@ class Core {
         }).then(answr=>{console.log(answr);});
     }
 }
-
-module.exports={Core}

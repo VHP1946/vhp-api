@@ -1,7 +1,7 @@
-const {Core}=require('../core/vapi-core.js');
+import {Core} from '../core/vapi-core.js';
 
-class VAPImart extends Core{
-    constructor(core){
+export class Mart extends Core{
+    constructor(core={}){
         super({...core});
     }
 
@@ -26,4 +26,3 @@ class VAPImart extends Core{
         });
     }
 }
-module.exports={VAPImart}

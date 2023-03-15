@@ -1,3 +1,6 @@
+import {Core} from '../core/vapi-core.js';
+
+
 //import { SENDrequestapi } from 'https://www.vhpportal.com/repo/apis/vapi/vapicore.js';
 //import {awo} from 'https://www.vhpportal.com/repo/ds/wos/vogel-wos.js';
 //import {aservicecontract} from 'https://www.vhpportal.com/repo/ds/contracts/vogel-servicecontracts.js';
@@ -15,7 +18,7 @@
 //AR_ServiceItemCustomInfo_tbl * use for custom service items
 //AR_ServiceItemCustomInfoLog_tbl
 
-class VAPIjmart extends Core{
+export class JMart extends Core{
   constructor(core){
     super({...core});
 
@@ -203,6 +206,3 @@ class VAPIjmart extends Core{
     })
   }
 }
-
-module.exports={VAPIjmart}
-

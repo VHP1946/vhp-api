@@ -1,5 +1,9 @@
+import {Core} from './core/vapi-core.js';
+import {Store} from './store/vapi-store.js';
+import {Structures} from './structures/vhp-structures.js';
 
-module.exports={
-    Core:require('./core/vapi-core').Core,
-    Store:require('./store/vapi-store')
+export {
+    Core,
+    Store,
+    Structures
 }
